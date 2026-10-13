@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senhaHash String
+  criadoEm  DateTime @default(now())
+  sessoes   Sessao[]
+}
+
+model Sessao {
+  token     String   @id
+  usuarioId Int
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  expiraEm  DateTime
+}
+
+model Cliente {
+  id        Int    @id @default(autoincrement())
+  nome      String
+  documento String
+  telefone  String
+  email     String
+  obras     Obra[]
+}
+
+model Obra {
+  id            Int       @id @default(autoincrement())
+  nome          String
+  clienteId     Int
+  cliente       Cliente   @relation(fields: [clienteId], references: [id])
+  endereco      String
+  dataInicio    DateTime
+  prazoDias     Int
+  valorContrato Float
+  status        String    @default("planejada")
+  servicos      Servico[]
+  medicoes      Medicao[]
+  diarios       Diario[]
+  fotos         Foto[]
+}
+
+model Servico {
+  id            Int           @id @default(autoincrement())
+  obraId        Int
+  obra          Obra          @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  codigo        String
+  descricao     String
+  unidade       String
+  quantidade    Float
+  precoUnitario Float
+  itens         MedicaoItem[]
+  fotos         Foto[]
+}
+
+model Medicao {
+  id            Int           @id @default(autoincrement())
+  obraId        Int
+  obra          Obra          @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  numero        Int
+  periodoInicio DateTime
+  periodoFim    DateTime
+  status        String        @default("rascunho")
+  observacoes   String?
+  itens         MedicaoItem[]
+
+  @@unique([obraId, numero])
+}
+
+model MedicaoItem {
+  id                  Int     @id @default(autoincrement())
+  medicaoId           Int
+  medicao             Medicao @relation(fields: [medicaoId], references: [id], onDelete: Cascade)
+  servicoId           Int
+  servico             Servico @relation(fields: [servicoId], references: [id])
+  quantidadeExecutada Float
+
+  @@unique([medicaoId, servicoId])
+}
+
+model Diario {
+  id          Int      @id @default(autoincrement())
+  obraId      Int
+  obra        Obra     @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  data        DateTime
+  climaManha  String
+  climaTarde  String
+  efetivo     Int
+  atividades  String
+  ocorrencias String?
+
+  @@unique([obraId, data])
+}
+
+model Foto {
+  id             Int      @id @default(autoincrement())
+  obraId         Int
+  obra           Obra     @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  servicoId      Int?
+  servico        Servico? @relation(fields: [servicoId], references: [id], onDelete: SetNull)
+  data           DateTime
+  legenda        String?
+  caminhoArquivo String
+  criadoEm       DateTime @default(now())
+}

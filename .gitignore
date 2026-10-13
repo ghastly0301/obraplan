@@ -1,0 +1,8 @@
+node_modules/
+.next/
+prisma/dev.db
+prisma/dev.db-journal
+public/uploads/*
+!public/uploads/.gitkeep
+dev.log
+npm-install.log
