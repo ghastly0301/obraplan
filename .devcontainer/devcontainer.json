@@ -1,6 +1,11 @@
 {
   "name": "ObraPlan",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
+  },
   "postCreateCommand": "npm install && npx prisma migrate deploy && npm run seed",
   "forwardPorts": [3001],
   "portsAttributes": {
