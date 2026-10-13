@@ -73,6 +73,34 @@ export const STATUS_MEDICAO: Record<string, { rotulo: string; cor: string }> = {
   aprovada: { rotulo: "Aprovada", cor: "bg-green-100 text-green-800" },
 };
 
+export const STATUS_CHAMADO: Record<string, { rotulo: string; cor: string }> = {
+  aberto: { rotulo: "Aberto", cor: "bg-amber-100 text-amber-800" },
+  em_analise: { rotulo: "Em análise", cor: "bg-blue-100 text-blue-800" },
+  resolvido: { rotulo: "Resolvido", cor: "bg-green-100 text-green-800" },
+};
+
+export const PRIORIDADES: Record<string, { rotulo: string; cor: string }> = {
+  baixa: { rotulo: "Baixa", cor: "bg-zinc-200 text-zinc-700" },
+  media: { rotulo: "Média", cor: "bg-amber-100 text-amber-800" },
+  alta: { rotulo: "Alta", cor: "bg-red-100 text-red-700" },
+};
+
+/** Telas do sistema, para o empreiteiro dizer onde o problema aconteceu. */
+export const TELAS_SISTEMA = [
+  "Login",
+  "Lista de obras",
+  "Painel da obra",
+  "Orçamento",
+  "Medições",
+  "Folha de impressão",
+  "Diário de obra",
+  "Fotos",
+  "Recebimentos",
+  "Funcionários",
+  "Materiais",
+  "Outra / não sei",
+] as const;
+
 export const CLIMAS = ["Sol", "Parcial", "Nublado", "Chuva"] as const;
 
 export const EMOJI_CLIMA: Record<string, string> = {

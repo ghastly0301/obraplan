@@ -23,11 +23,23 @@ async function main() {
   // Reinicia os IDs autoincrementais para o seed ser sempre igual
   await prisma.$executeRawUnsafe(`DELETE FROM sqlite_sequence`);
 
+  // Administrador do ObraPlan: resolve os chamados de suporte.
   await prisma.usuario.create({
     data: {
       nome: "Derik",
       email: "derik@obraplan.com.br",
       senhaHash: bcrypt.hashSync("Obra@Plan2026", 10),
+      papel: "admin",
+    },
+  });
+
+  // Login de testes com permissões de empreiteiro.
+  const empreiteiro = await prisma.usuario.create({
+    data: {
+      nome: "Bruno Teixeira",
+      email: "empreiteiro@obraplan.com.br",
+      senhaHash: bcrypt.hashSync("Teste@Obra2026", 10),
+      papel: "empreiteiro",
     },
   });
 
@@ -269,27 +281,47 @@ async function main() {
     },
   });
 
-  // Chamados
+  // Chamados de suporte do sistema, abertos pelo empreiteiro
   await prisma.chamado.create({
     data: {
-      titulo: "Vazamento na prumada do mezanino",
+      usuarioId: empreiteiro.id,
+      titulo: "Teclado do celular cobre o total da medição",
       descricao:
-        "Cliente relatou vazamento após a concretagem da laje. Verificar a prumada hidráulica do eixo B antes do reboco.",
-      obraId: galpao.id,
+        "Quando eu digito a quantidade no celular, o teclado tapa a barra do total embaixo e eu não consigo conferir o valor enquanto digito.",
+      tela: "Medições",
+      prioridade: "media",
       status: "aberto",
     },
   });
   await prisma.chamado.create({
     data: {
-      titulo: "Portão do canteiro sem cadeado",
-      descricao: "Comprar cadeado novo para o portão de acesso ao canteiro.",
-      obraId: galpao.id,
+      usuarioId: empreiteiro.id,
+      titulo: "Erro ao salvar diário com a mesma data",
+      descricao:
+        "Tentei lançar o diário de novo no mesmo dia para corrigir o efetivo e o sistema deu erro de duplicado. Seria melhor abrir o diário do dia já preenchido para editar.",
+      tela: "Diário de obra",
+      prioridade: "alta",
+      status: "em_analise",
+      resposta: "Estou analisando: a ideia é abrir direto em modo de edição.",
+    },
+  });
+  await prisma.chamado.create({
+    data: {
+      usuarioId: empreiteiro.id,
+      titulo: "Foto de pé virou de lado na grade",
+      descricao:
+        "Tirei a foto em pé pelo celular e na grade ela aparece deitada.",
+      tela: "Fotos",
+      prioridade: "baixa",
       status: "resolvido",
+      resposta: "Corrigido: a grade agora respeita a orientação da foto.",
+      resolvidoEm: new Date("2026-10-11T00:00:00.000Z"),
     },
   });
 
   console.log("Seed concluído.");
-  console.log("Login de teste: derik@obraplan.com.br / Obra@Plan2026");
+  console.log("Admin:       derik@obraplan.com.br / Obra@Plan2026");
+  console.log("Empreiteiro: empreiteiro@obraplan.com.br / Teste@Obra2026");
 }
 
 main()

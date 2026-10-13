@@ -1,14 +1,25 @@
 import { NextResponse } from "next/server";
 import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
-import { usuarioDaSessao } from "@/lib/auth";
+import { ehAdmin, usuarioDaSessao } from "@/lib/auth";
+
+/** De quais status cada ação pode partir, e para onde leva. */
+const TRANSICOES: Record<string, { de: string[]; para: string }> = {
+  analisar: { de: ["aberto"], para: "em_analise" },
+  resolver: { de: ["aberto", "em_analise"], para: "resolvido" },
+  reabrir: { de: ["em_analise", "resolvido"], para: "aberto" },
+};
 
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await usuarioDaSessao())) {
-    return NextResponse.redirect(urlDe(req, "/login"), 303);
+  const usuario = await usuarioDaSessao();
+  if (!usuario) return NextResponse.redirect(urlDe(req, "/login"), 303);
+
+  // Triagem e resposta são exclusivas do administrador do ObraPlan.
+  if (!ehAdmin(usuario)) {
+    return NextResponse.redirect(urlDe(req, "/chamados?erro=permissao"), 303);
   }
 
   const { id } = await params;
@@ -17,16 +28,22 @@ export async function POST(
 
   const form = await req.formData();
   const acao = String(form.get("acao") ?? "");
-  const novo =
-    acao === "resolver" && chamado.status === "aberto"
-      ? "resolvido"
-      : acao === "reabrir" && chamado.status === "resolvido"
-        ? "aberto"
-        : null;
-  if (!novo) {
-    return NextResponse.redirect(urlDe(req, "/chamados?erro=campos"), 303);
+  const transicao = TRANSICOES[acao];
+  if (!transicao || !transicao.de.includes(chamado.status)) {
+    return NextResponse.redirect(urlDe(req, "/chamados?erro=transicao"), 303);
   }
 
-  await prisma.chamado.update({ where: { id: chamado.id }, data: { status: novo } });
+  const respostaBruta = form.get("resposta");
+  const resposta =
+    typeof respostaBruta === "string" ? respostaBruta.trim() : null;
+
+  await prisma.chamado.update({
+    where: { id: chamado.id },
+    data: {
+      status: transicao.para,
+      resolvidoEm: transicao.para === "resolvido" ? new Date() : null,
+      ...(resposta !== null ? { resposta: resposta || null } : {}),
+    },
+  });
   return NextResponse.redirect(urlDe(req, "/chamados?ok=1"), 303);
 }

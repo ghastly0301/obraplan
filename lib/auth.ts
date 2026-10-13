@@ -31,6 +31,17 @@ export async function exigirSessao() {
   return usuario;
 }
 
+export function ehAdmin(usuario: { papel: string } | null) {
+  return usuario?.papel === "admin";
+}
+
+/** Usa em páginas que só o administrador do ObraPlan pode abrir. */
+export async function exigirAdmin() {
+  const usuario = await exigirSessao();
+  if (!ehAdmin(usuario)) redirect("/chamados");
+  return usuario;
+}
+
 export async function encerrarSessao() {
   const jar = await cookies();
   const token = jar.get(COOKIE_SESSAO)?.value;

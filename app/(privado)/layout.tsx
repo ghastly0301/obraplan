@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { exigirSessao } from "@/lib/auth";
+import { ehAdmin, exigirSessao } from "@/lib/auth";
 import NavPrincipal from "@/components/NavPrincipal";
 
 export default async function LayoutPrivado({ children }: { children: React.ReactNode }) {
@@ -12,7 +12,12 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
             🏗️ ObraPlan
           </Link>
           <div className="flex items-center gap-3 text-sm">
-            <span className="hidden sm:inline">{usuario.nome}</span>
+            <span className="hidden sm:inline">
+              {usuario.nome}
+              <span className="ml-1 text-blue-200">
+                ({ehAdmin(usuario) ? "admin" : "empreiteiro"})
+              </span>
+            </span>
             <form method="post" action="/api/logout">
               <button className="rounded-md bg-blue-900/70 px-3 py-2 font-medium">
                 Sair

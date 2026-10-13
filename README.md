@@ -25,8 +25,21 @@ Mobile-first — pensado para uso no canteiro, pelo celular.
   trabalhados e pagamentos; valor a receber de cada um.
 - **Materiais** — compras (com preço e fornecedor), estoque atual e uso por
   obra; não deixa usar mais do que há em estoque.
-- **Chamados** — abrir chamado com título e descrição (opcionalmente ligado
-  a uma obra), marcar como resolvido, reabrir, editar e excluir.
+- **Chamados (suporte do sistema)** — canal do empreiteiro para relatar
+  bugs e dificuldades do ObraPlan ao administrador: título, descrição,
+  tela onde ocorreu e prioridade. O administrador vê todos os chamados,
+  responde, põe em análise, resolve e reabre; o empreiteiro vê apenas os
+  seus e acompanha a resposta.
+
+## Papéis de usuário
+
+| Papel         | Pode                                                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| `admin`       | Tudo do empreiteiro + ver **todos** os chamados, responder, triar, resolver, reabrir e excluir   |
+| `empreiteiro` | Todas as telas de obra (orçamento, medições, diário, fotos, recebimentos, funcionários, materiais) + abrir chamados e acompanhar os **seus** |
+
+O empreiteiro pode editar o próprio chamado enquanto não está resolvido e
+cancelá-lo enquanto está aberto. Tudo isso é verificado no servidor.
 
 ## Stack
 
@@ -69,17 +82,17 @@ Observação: rode em modo `dev` se for enviar fotos, pois em produção o
 Next.js só garante a entrega de arquivos que já estavam em `public/` no
 momento do build.
 
-## Login de teste
+## Logins de teste
 
-| Campo  | Valor                   |
-| ------ | ----------------------- |
-| E-mail | `derik@obraplan.com.br` |
-| Senha  | `Obra@Plan2026`         |
+| Papel           | E-mail                         | Senha             |
+| --------------- | ------------------------------ | ----------------- |
+| Administrador   | `derik@obraplan.com.br`        | `Obra@Plan2026`   |
+| Empreiteiro     | `empreiteiro@obraplan.com.br`  | `Teste@Obra2026`  |
 
-> ⚠️ **AVISO:** troque este e-mail e senha antes de colocar a aplicação no
-> ar. A senha é gravada com bcrypt (nunca em texto puro); para trocar, edite
-> `prisma/seed.ts` e rode o seed novamente, ou atualize o hash direto no
-> banco.
+> ⚠️ **AVISO:** troque estes e-mails e senhas antes de colocar a aplicação
+> no ar — eles estão publicados neste README. As senhas são gravadas com
+> bcrypt (nunca em texto puro); para trocar, edite `prisma/seed.ts` e rode o
+> seed novamente, ou atualize o hash direto no banco.
 
 ## Regras de negócio implementadas (validadas no servidor)
 

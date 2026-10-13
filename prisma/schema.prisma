@@ -8,12 +8,16 @@ datasource db {
 }
 
 model Usuario {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   nome      String
-  email     String   @unique
+  email     String    @unique
   senhaHash String
-  criadoEm  DateTime @default(now())
+  /// admin: administrador do ObraPlan, resolve os chamados de suporte.
+  /// empreiteiro: usa o sistema e abre chamados.
+  papel     String    @default("empreiteiro")
+  criadoEm  DateTime  @default(now())
   sessoes   Sessao[]
+  chamados  Chamado[]
 }
 
 model Sessao {
@@ -48,17 +52,22 @@ model Obra {
   fotos         Foto[]
   recebimentos  Recebimento[]
   usosMaterial  MovimentoMaterial[]
-  chamados      Chamado[]
 }
 
+/// Chamado de suporte do sistema: o empreiteiro relata um bug ou
+/// dificuldade para o administrador do ObraPlan resolver.
 model Chamado {
-  id        Int      @id @default(autoincrement())
-  titulo    String
-  descricao String
-  obraId    Int?
-  obra      Obra?    @relation(fields: [obraId], references: [id], onDelete: SetNull)
-  status    String   @default("aberto") // aberto | resolvido
-  criadoEm  DateTime @default(now())
+  id          Int       @id @default(autoincrement())
+  usuarioId   Int // quem relatou
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  titulo      String
+  descricao   String
+  tela        String? // onde aconteceu (ex.: Medição, Diário)
+  prioridade  String    @default("media") // baixa | media | alta
+  status      String    @default("aberto") // aberto | em_analise | resolvido
+  resposta    String? // retorno do administrador
+  criadoEm    DateTime  @default(now())
+  resolvidoEm DateTime?
 }
 
 model Funcionario {
