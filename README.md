@@ -60,6 +60,24 @@ npm install
 npx prisma migrate deploy   # cria o banco SQLite (prisma/dev.db)
 ```
 
+## Rodando no GitHub Codespaces
+
+O GitHub Pages só serve site estático e **não roda** este app (precisa de
+Node, banco e upload de arquivo). Para rodar na infraestrutura do GitHub,
+use Codespaces — o `.devcontainer/devcontainer.json` já instala as
+dependências, aplica as migrações e roda o seed ao criar o ambiente:
+
+```bash
+gh codespace create -R <usuario>/obraplan -b main -m basicLinux32gb
+gh codespace ssh -c <nome> -- 'cd /workspaces/obraplan && (setsid nohup npm run dev > /tmp/dev.log 2>&1 < /dev/null &)'
+gh codespace ports visibility 3001:public -c <nome>   # opcional: deixa a URL aberta
+```
+
+A URL fica `https://<nome>-3001.app.github.dev`. Enquanto a porta estiver
+`public`, qualquer pessoa com o link entra — e as senhas de teste estão
+neste README, então não use essa instância com dados reais de cliente.
+Para fechar: `gh codespace ports visibility 3001:private -c <nome>`.
+
 ## Como rodar o seed (dados de teste)
 
 ```bash
