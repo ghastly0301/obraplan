@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
-import { ehAdmin, usuarioDaSessao } from "@/lib/auth";
+import { confirmarAdmin, usuarioDaSessao } from "@/lib/auth";
 import { PRIORIDADES, TELAS_SISTEMA } from "@/lib/format";
 
 export async function POST(
@@ -16,8 +16,10 @@ export async function POST(
   if (!chamado) return NextResponse.redirect(urlDe(req, "/chamados"), 303);
 
   // Só o autor (enquanto não está resolvido) ou o administrador editam.
-  const souAutor = chamado.usuarioId === usuario.id;
-  if (!ehAdmin(usuario) && (!souAutor || chamado.status === "resolvido")) {
+  const podeEditar =
+    (chamado.usuarioId === usuario.id && chamado.status !== "resolvido") ||
+    (await confirmarAdmin(usuario.id));
+  if (!podeEditar) {
     return NextResponse.redirect(urlDe(req, "/chamados?erro=permissao"), 303);
   }
 

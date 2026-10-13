@@ -35,6 +35,19 @@ export function ehAdmin(usuario: { papel: string } | null) {
   return usuario?.papel === "admin";
 }
 
+/**
+ * Reconfirma no banco que o usuário é administrador, no momento da escrita.
+ * Usar nas rotas que só o admin pode executar: não depende do objeto da
+ * sessão já carregado em memória.
+ */
+export async function confirmarAdmin(usuarioId: number) {
+  const u = await prisma.usuario.findUnique({
+    where: { id: usuarioId },
+    select: { papel: true },
+  });
+  return u?.papel === "admin";
+}
+
 /** Usa em páginas que só o administrador do ObraPlan pode abrir. */
 export async function exigirAdmin() {
   const usuario = await exigirSessao();

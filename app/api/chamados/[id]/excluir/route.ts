@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
-import { ehAdmin, usuarioDaSessao } from "@/lib/auth";
+import { confirmarAdmin, usuarioDaSessao } from "@/lib/auth";
 
 export async function POST(
   req: Request,
@@ -17,8 +17,8 @@ export async function POST(
   // O autor pode cancelar o próprio chamado enquanto está aberto;
   // o administrador pode excluir qualquer um.
   const podeExcluir =
-    ehAdmin(usuario) ||
-    (chamado.usuarioId === usuario.id && chamado.status === "aberto");
+    (chamado.usuarioId === usuario.id && chamado.status === "aberto") ||
+    (await confirmarAdmin(usuario.id));
   if (!podeExcluir) {
     return NextResponse.redirect(urlDe(req, "/chamados?erro=permissao"), 303);
   }

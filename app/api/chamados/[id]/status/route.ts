@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
-import { ehAdmin, usuarioDaSessao } from "@/lib/auth";
+import { confirmarAdmin, usuarioDaSessao } from "@/lib/auth";
 
 /** De quais status cada ação pode partir, e para onde leva. */
 const TRANSICOES: Record<string, { de: string[]; para: string }> = {
@@ -18,7 +18,8 @@ export async function POST(
   if (!usuario) return NextResponse.redirect(urlDe(req, "/login"), 303);
 
   // Triagem e resposta são exclusivas do administrador do ObraPlan.
-  if (!ehAdmin(usuario)) {
+  // O papel é relido do banco para não depender do objeto da sessão.
+  if (!(await confirmarAdmin(usuario.id))) {
     return NextResponse.redirect(urlDe(req, "/chamados?erro=permissao"), 303);
   }
 
