@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
 import { usuarioDaSessao } from "@/lib/auth";
 import { parseDataISO, parseNumeroBR } from "@/lib/format";
@@ -8,7 +9,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await usuarioDaSessao())) {
-    return NextResponse.redirect(new URL("/login", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/login"), 303);
   }
 
   const { id } = await params;
@@ -16,11 +17,11 @@ export async function POST(
     where: { id: Number(id) },
   });
   if (!funcionario) {
-    return NextResponse.redirect(new URL("/funcionarios", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/funcionarios"), 303);
   }
 
   const voltar = (q: string) =>
-    NextResponse.redirect(new URL(`/funcionarios?${q}`, req.url), 303);
+    NextResponse.redirect(urlDe(req, `/funcionarios?${q}`), 303);
 
   const form = await req.formData();
   const tipo = String(form.get("tipo") ?? "");

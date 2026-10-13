@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { urlDe } from "@/lib/url";
 import crypto from "crypto";
 import fs from "fs/promises";
 import path from "path";
@@ -16,7 +17,7 @@ const EXTENSOES: Record<string, string> = {
 
 export async function POST(req: Request) {
   if (!(await usuarioDaSessao())) {
-    return NextResponse.redirect(new URL("/login", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/login"), 303);
   }
 
   const form = await req.formData();
@@ -24,10 +25,10 @@ export async function POST(req: Request) {
   const obra = Number.isInteger(obraId)
     ? await prisma.obra.findUnique({ where: { id: obraId } })
     : null;
-  if (!obra) return NextResponse.redirect(new URL("/", req.url), 303);
+  if (!obra) return NextResponse.redirect(urlDe(req, "/"), 303);
 
   const voltar = (q: string) =>
-    NextResponse.redirect(new URL(`/obra/${obra.id}/fotos?${q}`, req.url), 303);
+    NextResponse.redirect(urlDe(req, `/obra/${obra.id}/fotos?${q}`), 303);
 
   const data = parseDataISO(form.get("data"));
   if (!data) return voltar("erro=campos");

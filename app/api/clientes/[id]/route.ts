@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
 import { usuarioDaSessao } from "@/lib/auth";
 import { destinoSeguro } from "@/lib/format";
@@ -8,18 +9,18 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await usuarioDaSessao())) {
-    return NextResponse.redirect(new URL("/login", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/login"), 303);
   }
 
   const { id } = await params;
   const cliente = await prisma.cliente.findUnique({ where: { id: Number(id) } });
-  if (!cliente) return NextResponse.redirect(new URL("/clientes", req.url), 303);
+  if (!cliente) return NextResponse.redirect(urlDe(req, "/clientes"), 303);
 
   const form = await req.formData();
   const voltar = destinoSeguro(form.get("voltar"), "/clientes");
   const nome = String(form.get("nome") ?? "").trim();
   if (!nome) {
-    return NextResponse.redirect(new URL(`${voltar}?erro=campos`, req.url), 303);
+    return NextResponse.redirect(urlDe(req, `${voltar}?erro=campos`), 303);
   }
 
   await prisma.cliente.update({
@@ -31,5 +32,5 @@ export async function POST(
       email: String(form.get("email") ?? "").trim(),
     },
   });
-  return NextResponse.redirect(new URL(`${voltar}?ok=1`, req.url), 303);
+  return NextResponse.redirect(urlDe(req, `${voltar}?ok=1`), 303);
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
 import { usuarioDaSessao } from "@/lib/auth";
 import { parseNumeroBR } from "@/lib/format";
@@ -8,7 +9,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await usuarioDaSessao())) {
-    return NextResponse.redirect(new URL("/login", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/login"), 303);
   }
 
   const { id } = await params;
@@ -16,7 +17,7 @@ export async function POST(
     where: { id: Number(id) },
   });
   if (!funcionario) {
-    return NextResponse.redirect(new URL("/funcionarios", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/funcionarios"), 303);
   }
 
   const form = await req.formData();
@@ -25,12 +26,12 @@ export async function POST(
   const diaria = parseNumeroBR(form.get("diaria"));
 
   if (!nome || !funcao || diaria === null || diaria <= 0) {
-    return NextResponse.redirect(new URL("/funcionarios?erro=campos", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/funcionarios?erro=campos"), 303);
   }
 
   await prisma.funcionario.update({
     where: { id: funcionario.id },
     data: { nome, funcao, diaria },
   });
-  return NextResponse.redirect(new URL("/funcionarios?ok=1", req.url), 303);
+  return NextResponse.redirect(urlDe(req, "/funcionarios?ok=1"), 303);
 }

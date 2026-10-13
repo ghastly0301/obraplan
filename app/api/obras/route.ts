@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
 import { usuarioDaSessao } from "@/lib/auth";
 import { parseDataISO, parseNumeroBR, STATUS_OBRA } from "@/lib/format";
 
 export async function POST(req: Request) {
   if (!(await usuarioDaSessao())) {
-    return NextResponse.redirect(new URL("/login", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/login"), 303);
   }
 
   const form = await req.formData();
@@ -32,11 +33,11 @@ export async function POST(req: Request) {
     valorContrato < 0 ||
     !(status in STATUS_OBRA)
   ) {
-    return NextResponse.redirect(new URL("/obras/nova?erro=campos", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/obras/nova?erro=campos"), 303);
   }
 
   const obra = await prisma.obra.create({
     data: { nome, endereco, clienteId: cliente.id, dataInicio, prazoDias, valorContrato, status },
   });
-  return NextResponse.redirect(new URL(`/obra/${obra.id}`, req.url), 303);
+  return NextResponse.redirect(urlDe(req, `/obra/${obra.id}`), 303);
 }

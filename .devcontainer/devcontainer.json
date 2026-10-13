@@ -1,0 +1,17 @@
+{
+  "name": "ObraPlan",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "postCreateCommand": "npm install && npx prisma migrate deploy && npm run seed",
+  "forwardPorts": [3001],
+  "portsAttributes": {
+    "3001": {
+      "label": "ObraPlan",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["Prisma.prisma", "bradlc.vscode-tailwindcss"]
+    }
+  }
+}

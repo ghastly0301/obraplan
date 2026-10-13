@@ -1,18 +1,19 @@
 import { NextResponse } from "next/server";
+import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
 import { usuarioDaSessao } from "@/lib/auth";
 import { destinoSeguro } from "@/lib/format";
 
 export async function POST(req: Request) {
   if (!(await usuarioDaSessao())) {
-    return NextResponse.redirect(new URL("/login", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/login"), 303);
   }
 
   const form = await req.formData();
   const voltar = destinoSeguro(form.get("voltar"), "/clientes");
   const nome = String(form.get("nome") ?? "").trim();
   if (!nome) {
-    return NextResponse.redirect(new URL(`${voltar}?erro=campos`, req.url), 303);
+    return NextResponse.redirect(urlDe(req, `${voltar}?erro=campos`), 303);
   }
 
   await prisma.cliente.create({
@@ -23,5 +24,5 @@ export async function POST(req: Request) {
       email: String(form.get("email") ?? "").trim(),
     },
   });
-  return NextResponse.redirect(new URL(`${voltar}?ok=1`, req.url), 303);
+  return NextResponse.redirect(urlDe(req, `${voltar}?ok=1`), 303);
 }

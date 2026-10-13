@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { urlDe } from "@/lib/url";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { usuarioDaSessao } from "@/lib/auth";
@@ -9,15 +10,15 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await usuarioDaSessao())) {
-    return NextResponse.redirect(new URL("/login", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/login"), 303);
   }
 
   const { id } = await params;
   const diario = await prisma.diario.findUnique({ where: { id: Number(id) } });
-  if (!diario) return NextResponse.redirect(new URL("/", req.url), 303);
+  if (!diario) return NextResponse.redirect(urlDe(req, "/"), 303);
 
   const voltar = (q: string) =>
-    NextResponse.redirect(new URL(`/obra/${diario.obraId}/diario?${q}`, req.url), 303);
+    NextResponse.redirect(urlDe(req, `/obra/${diario.obraId}/diario?${q}`), 303);
 
   const form = await req.formData();
   const data = parseDataISO(form.get("data"));

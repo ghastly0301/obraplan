@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { urlDe } from "@/lib/url";
 import { prisma } from "@/lib/db";
 import { usuarioDaSessao } from "@/lib/auth";
 
@@ -7,16 +8,16 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await usuarioDaSessao())) {
-    return NextResponse.redirect(new URL("/login", req.url), 303);
+    return NextResponse.redirect(urlDe(req, "/login"), 303);
   }
 
   const { id } = await params;
   const servico = await prisma.servico.findUnique({ where: { id: Number(id) } });
-  if (!servico) return NextResponse.redirect(new URL("/", req.url), 303);
+  if (!servico) return NextResponse.redirect(urlDe(req, "/"), 303);
 
   const voltar = (q: string) =>
     NextResponse.redirect(
-      new URL(`/obra/${servico.obraId}/orcamento?${q}`, req.url),
+      urlDe(req, `/obra/${servico.obraId}/orcamento?${q}`),
       303
     );
 
