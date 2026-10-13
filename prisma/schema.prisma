@@ -33,19 +33,81 @@ model Cliente {
 }
 
 model Obra {
-  id            Int       @id @default(autoincrement())
+  id            Int                 @id @default(autoincrement())
   nome          String
   clienteId     Int
-  cliente       Cliente   @relation(fields: [clienteId], references: [id])
+  cliente       Cliente             @relation(fields: [clienteId], references: [id])
   endereco      String
   dataInicio    DateTime
   prazoDias     Int
   valorContrato Float
-  status        String    @default("planejada")
+  status        String              @default("planejada")
   servicos      Servico[]
   medicoes      Medicao[]
   diarios       Diario[]
   fotos         Foto[]
+  recebimentos  Recebimento[]
+  usosMaterial  MovimentoMaterial[]
+  chamados      Chamado[]
+}
+
+model Chamado {
+  id        Int      @id @default(autoincrement())
+  titulo    String
+  descricao String
+  obraId    Int?
+  obra      Obra?    @relation(fields: [obraId], references: [id], onDelete: SetNull)
+  status    String   @default("aberto") // aberto | resolvido
+  criadoEm  DateTime @default(now())
+}
+
+model Funcionario {
+  id         Int                    @id @default(autoincrement())
+  nome       String
+  funcao     String
+  diaria     Float
+  criadoEm   DateTime               @default(now())
+  movimentos MovimentoFuncionario[]
+}
+
+model MovimentoFuncionario {
+  id            Int         @id @default(autoincrement())
+  funcionarioId Int
+  funcionario   Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  data          DateTime
+  tipo          String // trabalho | pagamento
+  dias          Float? // apenas trabalho
+  valor         Float // trabalho: dias x diária (na época) | pagamento: valor pago
+  descricao     String?
+}
+
+model Material {
+  id         Int                 @id @default(autoincrement())
+  nome       String
+  unidade    String
+  movimentos MovimentoMaterial[]
+}
+
+model MovimentoMaterial {
+  id            Int      @id @default(autoincrement())
+  materialId    Int
+  material      Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  obraId        Int? // apenas uso: em qual obra foi usado
+  obra          Obra?    @relation(fields: [obraId], references: [id], onDelete: SetNull)
+  data          DateTime
+  tipo          String // compra | uso
+  quantidade    Float
+  precoUnitario Float? // apenas compra
+  descricao     String? // fornecedor, local de uso etc.
+}
+
+model Recebimento {
+  id        Int      @id @default(autoincrement())
+  obraId    Int
+  obra      Obra     @relation(fields: [obraId], references: [id], onDelete: Cascade)
+  data      DateTime
+  valor     Float
+  descricao String?
 }
 
 model Servico {

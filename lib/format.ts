@@ -36,6 +36,13 @@ export function parseNumeroBR(valor: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** Caminho relativo seguro para redirecionar de volta (evita open redirect). */
+export function destinoSeguro(valor: unknown, padrao: string) {
+  return typeof valor === "string" && /^\/[a-zA-Z0-9/_-]*$/.test(valor)
+    ? valor
+    : padrao;
+}
+
 /** Aceita "AAAA-MM-DD" (input type=date) e devolve Date em UTC. */
 export function parseDataISO(valor: unknown): Date | null {
   if (typeof valor !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) return null;
@@ -44,6 +51,8 @@ export function parseDataISO(valor: unknown): Date | null {
 }
 
 export const UNIDADES = ["m2", "m3", "ml", "un", "vb", "kg"] as const;
+
+export const UNIDADES_MATERIAL = ["un", "kg", "m", "m2", "m3", "l", "sc", "gl", "vb"] as const;
 
 export function unidade(u: string) {
   if (u === "m2") return "m²";

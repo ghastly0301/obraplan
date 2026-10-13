@@ -2,7 +2,31 @@
 
 SaaS web em português do Brasil para empreiteiros de pequeno e médio porte
 gerenciarem obras: orçamento, medições (com folha de impressão), diário de
-obra e fotos. Mobile-first — pensado para uso no canteiro, pelo celular.
+obra, fotos, recebimentos do cliente, funcionários (dias trabalhados e
+valor a receber), materiais (compras, estoque e uso) e chamados.
+Mobile-first — pensado para uso no canteiro, pelo celular.
+
+## Módulos
+
+- **Obras** — criar, editar (inclusive status), painel com contrato, medido,
+  % físico e saldo a medir.
+- **Clientes** — cadastro e edição.
+- **Orçamento** — serviços com quantidade e preço unitário; total no rodapé.
+- **Medições** — criar, editar período, lançar quantidades com saldo
+  bloqueado no servidor, enviar → aprovar (aprovada trava), excluir
+  (não aprovada) e folha de impressão com valor por extenso.
+- **Diário de obra** — um por dia, com clima, efetivo, atividades e
+  ocorrências; editar e excluir.
+- **Fotos** — upload múltiplo, legenda e serviço; editar e excluir
+  (o arquivo é removido do disco).
+- **Recebimentos** — o que o cliente já pagou de cada obra vs. o medido
+  aprovado (saldo a receber).
+- **Funcionários** — quantidade, função, diária, lançamento de dias
+  trabalhados e pagamentos; valor a receber de cada um.
+- **Materiais** — compras (com preço e fornecedor), estoque atual e uso por
+  obra; não deixa usar mais do que há em estoque.
+- **Chamados** — abrir chamado com título e descrição (opcionalmente ligado
+  a uma obra), marcar como resolvido, reabrir, editar e excluir.
 
 ## Stack
 

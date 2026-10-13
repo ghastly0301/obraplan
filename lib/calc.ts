@@ -44,6 +44,22 @@ export async function jaMedidoPorServico(obraId: number, excetoMedicaoId?: numbe
   return mapa;
 }
 
+/** Estoque atual = compras − usos. */
+export function estoqueMaterial(movimentos: { tipo: string; quantidade: number }[]) {
+  return movimentos.reduce(
+    (soma, m) => soma + (m.tipo === "compra" ? m.quantidade : -m.quantidade),
+    0
+  );
+}
+
+/** Valor a receber = trabalho lançado − pagamentos. */
+export function saldoFuncionario(movimentos: { tipo: string; valor: number }[]) {
+  return movimentos.reduce(
+    (soma, m) => soma + (m.tipo === "trabalho" ? m.valor : -m.valor),
+    0
+  );
+}
+
 /** Carrega a obra pelo parâmetro da URL ou dispara 404. */
 export async function obterObra(idParam: string) {
   const id = Number(idParam);

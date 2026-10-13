@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { exigirSessao } from "@/lib/auth";
 import { obterObra } from "@/lib/calc";
 import { dataBR, hojeISO } from "@/lib/format";
+import FormPost from "@/components/FormPost";
 
 export default async function PaginaFotos({
   params,
@@ -38,7 +39,8 @@ export default async function PaginaFotos({
       </Link>
       <h1 className="mb-3 mt-1 text-xl font-bold">Fotos da obra</h1>
 
-      {sp.ok && (
+      {sp.ok === "salvo" && <p className="aviso-ok">Salvo.</p>}
+      {sp.ok && sp.ok !== "salvo" && (
         <p className="aviso-ok">
           {sp.ok} foto{Number(sp.ok) > 1 ? "s" : ""} enviada
           {Number(sp.ok) > 1 ? "s" : ""}.
@@ -103,27 +105,63 @@ export default async function PaginaFotos({
           <h2 className="mb-2 text-base font-semibold text-zinc-700">📅 {data}</h2>
           <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
             {lista.map((f) => (
-              <a
-                key={f.id}
-                href={f.caminhoArquivo}
-                target="_blank"
-                rel="noopener"
-                className="block"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={f.caminhoArquivo}
-                  alt={f.legenda ?? "Foto da obra"}
-                  loading="lazy"
-                  className="aspect-square w-full rounded-lg bg-zinc-200 object-cover"
-                />
+              <div key={f.id}>
+                <a href={f.caminhoArquivo} target="_blank" rel="noopener" className="block">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={f.caminhoArquivo}
+                    alt={f.legenda ?? "Foto da obra"}
+                    loading="lazy"
+                    className="aspect-square w-full rounded-lg bg-zinc-200 object-cover"
+                  />
+                </a>
                 {(f.legenda || f.servico) && (
                   <div className="mt-0.5 truncate text-xs text-zinc-600">
                     {f.servico ? `${f.servico.codigo} · ` : ""}
                     {f.legenda ?? ""}
                   </div>
                 )}
-              </a>
+                <details>
+                  <summary className="text-xs font-semibold text-blue-700">Editar</summary>
+                  <form method="post" action={`/api/fotos/${f.id}`} className="mt-2 space-y-2">
+                    <input
+                      type="date"
+                      name="data"
+                      required
+                      defaultValue={f.data.toISOString().slice(0, 10)}
+                      className="campo h-10 text-sm"
+                    />
+                    <input
+                      name="legenda"
+                      defaultValue={f.legenda ?? ""}
+                      placeholder="Legenda"
+                      className="campo h-10 text-sm"
+                    />
+                    <select
+                      name="servicoId"
+                      defaultValue={f.servicoId ?? ""}
+                      className="campo h-10 text-sm"
+                    >
+                      <option value="">Sem serviço</option>
+                      {servicos.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.codigo}
+                        </option>
+                      ))}
+                    </select>
+                    <button className="botao h-10 w-full text-sm">Salvar</button>
+                  </form>
+                  <FormPost
+                    action={`/api/fotos/${f.id}/excluir`}
+                    confirmar="Excluir esta foto? O arquivo também será apagado."
+                    className="mt-1"
+                  >
+                    <button className="botao-claro h-10 w-full text-sm text-red-600">
+                      Excluir
+                    </button>
+                  </FormPost>
+                </details>
+              </div>
             ))}
           </div>
         </section>

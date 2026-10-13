@@ -14,7 +14,12 @@ export default async function PaginaInicial() {
 
   return (
     <div>
-      <h1 className="mb-3 text-xl font-bold">Minhas obras</h1>
+      <div className="mb-3 flex items-center justify-between">
+        <h1 className="text-xl font-bold">Minhas obras</h1>
+        <Link href="/obras/nova" className="botao h-11 px-4 text-sm">
+          + Nova obra
+        </Link>
+      </div>
       {obras.length === 0 && (
         <p className="cartao text-sm text-zinc-500">Nenhuma obra cadastrada.</p>
       )}

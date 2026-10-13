@@ -9,7 +9,7 @@ export default async function PaginaMedicoes({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ erro?: string }>;
+  searchParams: Promise<{ ok?: string; erro?: string }>;
 }) {
   await exigirSessao();
   const { id } = await params;
@@ -28,6 +28,7 @@ export default async function PaginaMedicoes({
       </Link>
       <h1 className="mb-3 mt-1 text-xl font-bold">Medições</h1>
 
+      {sp.ok === "excluida" && <p className="aviso-ok">Medição excluída.</p>}
       {sp.erro === "periodo" && (
         <p className="aviso-erro">Informe um período válido (início até fim).</p>
       )}

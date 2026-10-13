@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { exigirSessao } from "@/lib/auth";
+import NavPrincipal from "@/components/NavPrincipal";
 
 export default async function LayoutPrivado({ children }: { children: React.ReactNode }) {
   const usuario = await exigirSessao();
@@ -19,6 +20,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
             </form>
           </div>
         </div>
+        <NavPrincipal />
       </header>
       <main className="mx-auto max-w-3xl px-4 py-4 print:max-w-none print:p-0">
         {children}

@@ -12,6 +12,7 @@ const ERROS: Record<string, string> = {
   saldo: "Quantidade acima do saldo disponível",
   valor: "Quantidade inválida",
   transicao: "Ação não permitida para o status atual da medição.",
+  periodo: "Informe um período válido (início até fim).",
 };
 
 export default async function PaginaMedicao({
@@ -119,6 +120,46 @@ export default async function PaginaMedicao({
         <p className="aviso-ok">
           Medição aprovada: os itens estão travados e não podem ser alterados.
         </p>
+      )}
+
+      {editavel && (
+        <details className="cartao mb-4">
+          <summary className="text-sm font-semibold text-blue-700">
+            Editar período · excluir medição
+          </summary>
+          <form method="post" action={`/api/medicoes/${medicao.id}`} className="mt-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="rotulo">Início do período</label>
+                <input
+                  type="date"
+                  name="periodoInicio"
+                  required
+                  defaultValue={medicao.periodoInicio.toISOString().slice(0, 10)}
+                  className="campo"
+                />
+              </div>
+              <div>
+                <label className="rotulo">Fim do período</label>
+                <input
+                  type="date"
+                  name="periodoFim"
+                  required
+                  defaultValue={medicao.periodoFim.toISOString().slice(0, 10)}
+                  className="campo"
+                />
+              </div>
+            </div>
+            <button className="botao mt-3 w-full">Salvar período</button>
+          </form>
+          <FormPost
+            action={`/api/medicoes/${medicao.id}/excluir`}
+            confirmar={`Excluir a medição nº ${medicao.numero} e todos os seus itens?`}
+            className="mt-2"
+          >
+            <button className="botao-claro w-full text-red-600">Excluir medição</button>
+          </FormPost>
+        </details>
       )}
 
       {itens.length === 0 ? (

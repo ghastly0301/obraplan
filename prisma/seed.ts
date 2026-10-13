@@ -10,6 +10,12 @@ async function main() {
   await prisma.diario.deleteMany();
   await prisma.foto.deleteMany();
   await prisma.servico.deleteMany();
+  await prisma.movimentoMaterial.deleteMany();
+  await prisma.material.deleteMany();
+  await prisma.movimentoFuncionario.deleteMany();
+  await prisma.funcionario.deleteMany();
+  await prisma.recebimento.deleteMany();
+  await prisma.chamado.deleteMany();
   await prisma.obra.deleteMany();
   await prisma.cliente.deleteMany();
   await prisma.sessao.deleteMany();
@@ -149,6 +155,137 @@ async function main() {
         ocorrencias: null,
       },
     ],
+  });
+
+  // Funcionários com dias trabalhados e pagamentos
+  const funcionarios = [
+    {
+      nome: "João Pereira",
+      funcao: "Pedreiro",
+      diaria: 180,
+      movimentos: [
+        { data: "2026-10-03", tipo: "trabalho", dias: 6, valor: 1080, descricao: "Semana 28/09 a 03/10" },
+        { data: "2026-10-10", tipo: "trabalho", dias: 6, valor: 1080, descricao: "Semana 05/10 a 10/10" },
+        { data: "2026-10-10", tipo: "pagamento", dias: null, valor: 1500, descricao: "Adiantamento" },
+      ],
+    },
+    {
+      nome: "Carlos Lima",
+      funcao: "Servente",
+      diaria: 130,
+      movimentos: [
+        { data: "2026-10-10", tipo: "trabalho", dias: 12, valor: 1560, descricao: "Quinzena" },
+        { data: "2026-10-10", tipo: "pagamento", dias: null, valor: 800, descricao: "Adiantamento" },
+      ],
+    },
+    {
+      nome: "Antônio Souza",
+      funcao: "Eletricista",
+      diaria: 220,
+      movimentos: [
+        { data: "2026-10-10", tipo: "trabalho", dias: 5, valor: 1100, descricao: "Marcação elétrica" },
+      ],
+    },
+  ];
+  for (const f of funcionarios) {
+    await prisma.funcionario.create({
+      data: {
+        nome: f.nome,
+        funcao: f.funcao,
+        diaria: f.diaria,
+        movimentos: {
+          create: f.movimentos.map((m) => ({
+            data: new Date(`${m.data}T00:00:00.000Z`),
+            tipo: m.tipo,
+            dias: m.dias,
+            valor: m.valor,
+            descricao: m.descricao,
+          })),
+        },
+      },
+    });
+  }
+
+  // Materiais com compras e usos
+  const materiais = [
+    {
+      nome: "Cimento CP-II 50 kg",
+      unidade: "sc",
+      movimentos: [
+        { data: "2026-09-20", tipo: "compra", quantidade: 100, precoUnitario: 38.9, descricao: "Depósito Central" },
+        { data: "2026-10-05", tipo: "uso", quantidade: 60, obraId: galpao.id, descricao: "Laje do mezanino" },
+      ],
+    },
+    {
+      nome: "Areia média lavada",
+      unidade: "m3",
+      movimentos: [
+        { data: "2026-09-20", tipo: "compra", quantidade: 20, precoUnitario: 120, descricao: "Depósito Central" },
+        { data: "2026-10-05", tipo: "uso", quantidade: 12, obraId: galpao.id, descricao: null },
+      ],
+    },
+    {
+      nome: "Bloco cerâmico 9x19x39",
+      unidade: "un",
+      movimentos: [
+        { data: "2026-09-15", tipo: "compra", quantidade: 5000, precoUnitario: 2.1, descricao: "Cerâmica São José" },
+        { data: "2026-10-08", tipo: "uso", quantidade: 3500, obraId: galpao.id, descricao: "Alvenaria eixos B e C" },
+      ],
+    },
+    {
+      nome: "Tinta acrílica branca 18 L",
+      unidade: "gl",
+      movimentos: [
+        { data: "2026-10-01", tipo: "compra", quantidade: 10, precoUnitario: 320, descricao: "Casa das Tintas" },
+      ],
+    },
+  ];
+  for (const m of materiais) {
+    await prisma.material.create({
+      data: {
+        nome: m.nome,
+        unidade: m.unidade,
+        movimentos: {
+          create: m.movimentos.map((mov) => ({
+            data: new Date(`${mov.data}T00:00:00.000Z`),
+            tipo: mov.tipo,
+            quantidade: mov.quantidade,
+            precoUnitario: "precoUnitario" in mov ? mov.precoUnitario : null,
+            obraId: "obraId" in mov ? mov.obraId : null,
+            descricao: mov.descricao ?? null,
+          })),
+        },
+      },
+    });
+  }
+
+  // Recebimento do cliente (medição 1 paga em parte)
+  await prisma.recebimento.create({
+    data: {
+      obraId: galpao.id,
+      data: new Date("2026-09-10T00:00:00.000Z"),
+      valor: 80000,
+      descricao: "Pagamento parcial da medição nº 1",
+    },
+  });
+
+  // Chamados
+  await prisma.chamado.create({
+    data: {
+      titulo: "Vazamento na prumada do mezanino",
+      descricao:
+        "Cliente relatou vazamento após a concretagem da laje. Verificar a prumada hidráulica do eixo B antes do reboco.",
+      obraId: galpao.id,
+      status: "aberto",
+    },
+  });
+  await prisma.chamado.create({
+    data: {
+      titulo: "Portão do canteiro sem cadeado",
+      descricao: "Comprar cadeado novo para o portão de acesso ao canteiro.",
+      obraId: galpao.id,
+      status: "resolvido",
+    },
   });
 
   console.log("Seed concluído.");

@@ -57,8 +57,8 @@ export default async function FolhaDeMedicao({
             <span className="font-semibold">Obra:</span> {obra.nome}
           </div>
           <div>
-            <span className="font-semibold">Contratante:</span> {obra.cliente.nome} (
-            {obra.cliente.documento})
+            <span className="font-semibold">Contratante:</span> {obra.cliente.nome}
+            {obra.cliente.documento ? ` (${obra.cliente.documento})` : ""}
           </div>
           <div>
             <span className="font-semibold">Endereço:</span> {obra.endereco}

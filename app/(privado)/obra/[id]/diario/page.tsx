@@ -1,14 +1,24 @@
 import Link from "next/link";
+import type { Diario } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { exigirSessao } from "@/lib/auth";
 import { obterObra } from "@/lib/calc";
 import { CLIMAS, EMOJI_CLIMA, hojeISO } from "@/lib/format";
+import FormPost from "@/components/FormPost";
 
-function SelectClima({ nome, rotulo }: { nome: string; rotulo: string }) {
+function SelectClima({
+  nome,
+  rotulo,
+  valor,
+}: {
+  nome: string;
+  rotulo: string;
+  valor?: string;
+}) {
   return (
     <div>
       <label className="rotulo">{rotulo}</label>
-      <select name={nome} className="campo" defaultValue="Sol">
+      <select name={nome} className="campo" defaultValue={valor ?? "Sol"}>
         {CLIMAS.map((c) => (
           <option key={c} value={c}>
             {EMOJI_CLIMA[c]} {c}
@@ -16,6 +26,62 @@ function SelectClima({ nome, rotulo }: { nome: string; rotulo: string }) {
         ))}
       </select>
     </div>
+  );
+}
+
+function CamposDiario({ d, obraId }: { d?: Diario; obraId: number }) {
+  return (
+    <>
+      <input type="hidden" name="obraId" value={obraId} />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="rotulo">Data</label>
+          <input
+            type="date"
+            name="data"
+            required
+            defaultValue={d ? d.data.toISOString().slice(0, 10) : hojeISO()}
+            className="campo"
+          />
+        </div>
+        <div>
+          <label className="rotulo">Efetivo (pessoas)</label>
+          <input
+            type="number"
+            name="efetivo"
+            inputMode="numeric"
+            min={0}
+            step={1}
+            required
+            defaultValue={d?.efetivo}
+            className="campo"
+          />
+        </div>
+        <SelectClima nome="climaManha" rotulo="Clima manhã" valor={d?.climaManha} />
+        <SelectClima nome="climaTarde" rotulo="Clima tarde" valor={d?.climaTarde} />
+        <div className="col-span-2">
+          <label className="rotulo">Atividades do dia</label>
+          <textarea
+            name="atividades"
+            rows={3}
+            required
+            defaultValue={d?.atividades}
+            placeholder="O que foi feito hoje?"
+            className="campo"
+          />
+        </div>
+        <div className="col-span-2">
+          <label className="rotulo">Ocorrências (opcional)</label>
+          <textarea
+            name="ocorrencias"
+            rows={2}
+            defaultValue={d?.ocorrencias ?? ""}
+            placeholder="Chuva, falta de material, acidente…"
+            className="campo"
+          />
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -53,7 +119,7 @@ export default async function PaginaDiario({
       </Link>
       <h1 className="mb-3 mt-1 text-xl font-bold">Diário de obra</h1>
 
-      {sp.ok && <p className="aviso-ok">Diário salvo.</p>}
+      {sp.ok && <p className="aviso-ok">Salvo.</p>}
       {sp.erro === "duplicado" && (
         <p className="aviso-erro">Já existe um diário desta obra nessa data.</p>
       )}
@@ -62,46 +128,7 @@ export default async function PaginaDiario({
       )}
 
       <form method="post" action="/api/diarios" className="cartao mb-4">
-        <input type="hidden" name="obraId" value={obra.id} />
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="rotulo">Data</label>
-            <input type="date" name="data" required defaultValue={hojeISO()} className="campo" />
-          </div>
-          <div>
-            <label className="rotulo">Efetivo (pessoas)</label>
-            <input
-              type="number"
-              name="efetivo"
-              inputMode="numeric"
-              min={0}
-              step={1}
-              required
-              className="campo"
-            />
-          </div>
-          <SelectClima nome="climaManha" rotulo="Clima manhã" />
-          <SelectClima nome="climaTarde" rotulo="Clima tarde" />
-          <div className="col-span-2">
-            <label className="rotulo">Atividades do dia</label>
-            <textarea
-              name="atividades"
-              rows={3}
-              required
-              placeholder="O que foi feito hoje?"
-              className="campo"
-            />
-          </div>
-          <div className="col-span-2">
-            <label className="rotulo">Ocorrências (opcional)</label>
-            <textarea
-              name="ocorrencias"
-              rows={2}
-              placeholder="Chuva, falta de material, acidente…"
-              className="campo"
-            />
-          </div>
-        </div>
+        <CamposDiario obraId={obra.id} />
         <button className="botao mt-3 w-full">Salvar diário</button>
       </form>
 
@@ -130,6 +157,20 @@ export default async function PaginaDiario({
                 ⚠️ {d.ocorrencias}
               </p>
             )}
+            <details className="mt-2">
+              <summary className="text-sm font-semibold text-blue-700">Editar</summary>
+              <form method="post" action={`/api/diarios/${d.id}`} className="mt-3">
+                <CamposDiario d={d} obraId={obra.id} />
+                <button className="botao mt-3 w-full">Salvar alterações</button>
+              </form>
+              <FormPost
+                action={`/api/diarios/${d.id}/excluir`}
+                confirmar="Excluir este diário?"
+                className="mt-2"
+              >
+                <button className="botao-claro w-full text-red-600">Excluir diário</button>
+              </FormPost>
+            </details>
           </div>
         ))}
       </div>

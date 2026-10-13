@@ -8,6 +8,8 @@ const ATALHOS = [
   { href: "fotos", emoji: "📷", rotulo: "Fotos" },
   { href: "medicoes", emoji: "📏", rotulo: "Medições" },
   { href: "orcamento", emoji: "🧾", rotulo: "Orçamento" },
+  { href: "recebimentos", emoji: "💰", rotulo: "Recebimentos" },
+  { href: "editar", emoji: "✏️", rotulo: "Editar obra" },
 ];
 
 export default async function PainelObra({
