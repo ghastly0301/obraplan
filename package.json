@@ -6,7 +6,8 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start -p 3001",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "criar-admin": "tsx --env-file=.env.admin scripts/criar-admin.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

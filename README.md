@@ -112,6 +112,24 @@ momento do build.
 > bcrypt (nunca em texto puro); para trocar, edite `prisma/seed.ts` e rode o
 > seed novamente, ou atualize o hash direto no banco.
 
+## Acesso de administrador privado
+
+Os logins da tabela acima estão publicados aqui, então servem só para
+demonstração. Para um administrador de verdade, use um acesso que não
+passa pelo repositório:
+
+```bash
+cp .env.admin.exemplo .env.admin   # .env.admin está no .gitignore
+# edite .env.admin e escolha e-mail e senha (mínimo de 12 caracteres)
+npm run criar-admin
+```
+
+O comando cria o usuário com papel `admin` ou, se o e-mail já existir,
+atualiza o nome e a senha dele. Em qualquer um dos casos as sessões
+antigas desse usuário são derrubadas.
+
+Rode sempre **depois** do seed: o seed apaga todos os usuários.
+
 ## Regras de negócio implementadas (validadas no servidor)
 
 1. Já medido + sendo medido nunca ultrapassa a quantidade orçada do serviço

@@ -7,3 +7,4 @@ public/uploads/*
 dev.log
 npm-install.log
 tsconfig.tsbuildinfo
+.env.admin
