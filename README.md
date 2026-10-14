@@ -60,23 +60,35 @@ npm install
 npx prisma migrate deploy   # cria o banco SQLite (prisma/dev.db)
 ```
 
-## Rodando no GitHub Codespaces
+## Hospedagem na Vercel
 
-O GitHub Pages só serve site estático e **não roda** este app (precisa de
-Node, banco e upload de arquivo). Para rodar na infraestrutura do GitHub,
-use Codespaces — o `.devcontainer/devcontainer.json` já instala as
-dependências, aplica as migrações e roda o seed ao criar o ambiente:
+O projeto roda na Vercel com Postgres e Vercel Blob. O disco da Vercel é
+efêmero, então nada pode ser gravado em `public/uploads` em produção: as
+fotos vão para o Blob (ver `lib/armazenamento.ts`).
+
+Variáveis de ambiente do projeto na Vercel:
+
+| Variável | Para quê |
+| --- | --- |
+| `DATABASE_URL` | string de conexão do Postgres |
+| `BLOB_READ_WRITE_TOKEN` | token do Vercel Blob, onde ficam as fotos |
+
+O build roda `npm run vercel-build`, que aplica as migrações antes de
+compilar. Depois do primeiro deploy, rode o seed e crie o administrador
+apontando `DATABASE_URL` para o banco de produção.
+
+Sem `BLOB_READ_WRITE_TOKEN`, o armazenamento cai para `public/uploads`, que
+é o modo de desenvolvimento local.
+
+## Testes
 
 ```bash
-gh codespace create -R <usuario>/obraplan -b main -m basicLinux32gb
-gh codespace ssh -c <nome> -- 'cd /workspaces/obraplan && (setsid nohup npm run dev > /tmp/dev.log 2>&1 < /dev/null &)'
-gh codespace ports visibility 3001:public -c <nome>   # opcional: deixa a URL aberta
+npm run testar
 ```
 
-A URL fica `https://<nome>-3001.app.github.dev`. Enquanto a porta estiver
-`public`, qualquer pessoa com o link entra — e as senhas de teste estão
-neste README, então não use essa instância com dados reais de cliente.
-Para fechar: `gh codespace ports visibility 3001:private -c <nome>`.
+Sobe um banco `obraplan_test` e um servidor na porta 3100, roda a bateria de
+ponta a ponta (`scripts/testes-e2e.ts`) e derruba tudo. Precisa de um
+Postgres acessível; `DATABASE_URL_TESTE` aponta para outro banco se quiser.
 
 ## Como rodar o seed (dados de teste)
 

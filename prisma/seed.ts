@@ -4,24 +4,15 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Limpa tudo (ordem respeita as chaves estrangeiras)
-  await prisma.medicaoItem.deleteMany();
-  await prisma.medicao.deleteMany();
-  await prisma.diario.deleteMany();
-  await prisma.foto.deleteMany();
-  await prisma.servico.deleteMany();
-  await prisma.movimentoMaterial.deleteMany();
-  await prisma.material.deleteMany();
-  await prisma.movimentoFuncionario.deleteMany();
-  await prisma.funcionario.deleteMany();
-  await prisma.recebimento.deleteMany();
-  await prisma.chamado.deleteMany();
-  await prisma.obra.deleteMany();
-  await prisma.cliente.deleteMany();
-  await prisma.sessao.deleteMany();
-  await prisma.usuario.deleteMany();
-  // Reinicia os IDs autoincrementais para o seed ser sempre igual
-  await prisma.$executeRawUnsafe(`DELETE FROM sqlite_sequence`);
+  // Limpa tudo e reinicia os IDs para o seed ser sempre igual.
+  await prisma.$executeRawUnsafe(`
+    TRUNCATE TABLE
+      "MedicaoItem", "Medicao", "Diario", "Foto", "Servico",
+      "MovimentoMaterial", "Material", "MovimentoFuncionario",
+      "Funcionario", "Recebimento", "Chamado", "Obra", "Cliente",
+      "Sessao", "Usuario"
+    RESTART IDENTITY CASCADE
+  `);
 
   // Administrador do ObraPlan: resolve os chamados de suporte.
   await prisma.usuario.create({

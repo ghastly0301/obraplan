@@ -1,19 +1,9 @@
 import { NextResponse } from "next/server";
 import { urlDe } from "@/lib/url";
-import crypto from "crypto";
-import fs from "fs/promises";
-import path from "path";
 import { prisma } from "@/lib/db";
 import { usuarioDaSessao } from "@/lib/auth";
 import { parseDataISO } from "@/lib/format";
-
-const EXTENSOES: Record<string, string> = {
-  "image/jpeg": ".jpg",
-  "image/png": ".png",
-  "image/webp": ".webp",
-  "image/gif": ".gif",
-  "image/heic": ".heic",
-};
+import { salvarImagem } from "@/lib/armazenamento";
 
 export async function POST(req: Request) {
   if (!(await usuarioDaSessao())) {
@@ -50,25 +40,21 @@ export async function POST(req: Request) {
     .filter((a): a is File => a instanceof File && a.size > 0);
   if (arquivos.length === 0) return voltar("erro=sem_arquivo");
 
-  const dir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(dir, { recursive: true });
-
   let salvas = 0;
   for (const arquivo of arquivos) {
     if (!arquivo.type.startsWith("image/")) continue;
-    const extNome = path.extname(arquivo.name).toLowerCase();
-    const ext = /^\.[a-z0-9]{2,5}$/.test(extNome)
-      ? extNome
-      : EXTENSOES[arquivo.type] ?? ".jpg";
-    const nome = `${crypto.randomUUID()}${ext}`;
-    await fs.writeFile(path.join(dir, nome), Buffer.from(await arquivo.arrayBuffer()));
+    const caminhoArquivo = await salvarImagem(
+      arquivo.name,
+      Buffer.from(await arquivo.arrayBuffer()),
+      arquivo.type
+    );
     await prisma.foto.create({
       data: {
         obraId: obra.id,
         servicoId,
         data,
         legenda: legenda || null,
-        caminhoArquivo: `/uploads/${nome}`,
+        caminhoArquivo,
       },
     });
     salvas++;

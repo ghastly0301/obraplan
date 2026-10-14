@@ -7,13 +7,16 @@
     "build": "next build",
     "start": "next start -p 3001",
     "seed": "tsx prisma/seed.ts",
-    "criar-admin": "tsx --env-file=.env.admin scripts/criar-admin.ts"
+    "criar-admin": "tsx --env-file=.env.admin scripts/criar-admin.ts",
+    "testar": "./scripts/testar.sh",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
+    "@vercel/blob": "^2.8.2",
     "bcryptjs": "^2.4.3",
     "next": "^15.1.6",
     "react": "^19.0.0",

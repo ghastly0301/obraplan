@@ -6,7 +6,7 @@
       "version": "latest"
     }
   },
-  "postCreateCommand": "npm install && npx prisma migrate deploy && npm run seed",
+  "postCreateCommand": "cp -n .env.exemplo .env && npm install && npx prisma generate",
   "forwardPorts": [3001],
   "portsAttributes": {
     "3001": {

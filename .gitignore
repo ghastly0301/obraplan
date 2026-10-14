@@ -8,3 +8,6 @@ dev.log
 npm-install.log
 tsconfig.tsbuildinfo
 .env.admin
+prisma/test.db
+prisma/test.db-journal
+.env
