@@ -80,6 +80,29 @@ apontando `DATABASE_URL` para o banco de produção.
 Sem `BLOB_READ_WRITE_TOKEN`, o armazenamento cai para `public/uploads`, que
 é o modo de desenvolvimento local.
 
+## Hospedagem em VPS (Hostinger, Hetzner, DigitalOcean)
+
+Um VPS Ubuntu roda tudo numa máquina só: Next.js, Postgres e as fotos em
+disco. Sem `BLOB_READ_WRITE_TOKEN`, `lib/armazenamento.ts` grava em
+`public/uploads`, que no VPS persiste.
+
+Como root, no servidor:
+
+```bash
+git clone https://github.com/ghastly0301/obraplan /opt/obraplan
+DOMINIO=seu-dominio.com.br REPO=https://github.com/ghastly0301/obraplan \
+  BRANCH=main bash /opt/obraplan/implantacao/instalar-vps.sh
+```
+
+O script instala Node 20, Postgres e nginx, cria o banco e o `.env`, aplica
+as migrações, compila, sobe o serviço `systemd` e agenda o backup diário.
+Rodar de novo atualiza o código e reinicia. Os arquivos ficam em
+`implantacao/`.
+
+Os dois últimos passos são seus, nesta ordem: `certbot --nginx` para o HTTPS
+(depois do DNS apontar para o servidor) e `npm run criar-admin` para o seu
+acesso de administrador.
+
 ## Testes
 
 ```bash

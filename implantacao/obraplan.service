@@ -1,0 +1,20 @@
+[Unit]
+Description=ObraPlan
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=obraplan
+WorkingDirectory=/opt/obraplan
+EnvironmentFile=/opt/obraplan/.env
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5
+# As fotos ficam em public/uploads; o resto do sistema é só leitura.
+ProtectSystem=full
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
