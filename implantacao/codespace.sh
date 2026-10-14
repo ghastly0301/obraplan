@@ -19,8 +19,11 @@ if ! command -v psql >/dev/null; then
 fi
 sudo service postgresql start
 
-sudo -u postgres psql -tAc "select 1 from pg_roles where rolname='$USUARIO'" | grep -q 1 \
-  || sudo -u postgres createuser -s "$USUARIO"
+# `sudo -u postgres` pede senha neste container; `sudo su` não.
+como_postgres() { sudo su postgres -c "$1"; }
+
+como_postgres "psql -tAc \"select 1 from pg_roles where rolname='$USUARIO'\"" | grep -q 1 \
+  || como_postgres "createuser -s $USUARIO"
 psql -d postgres -tAc "select 1 from pg_database where datname='obraplan'" | grep -q 1 \
   || createdb obraplan
 
