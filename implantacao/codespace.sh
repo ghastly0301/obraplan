@@ -22,13 +22,20 @@ sudo service postgresql start
 # `sudo -u postgres` pede senha neste container; `sudo su` não.
 como_postgres() { sudo su postgres -c "$1"; }
 
-como_postgres "psql -tAc \"select 1 from pg_roles where rolname='$USUARIO'\"" | grep -q 1 \
-  || como_postgres "createuser -s $USUARIO"
-psql -d postgres -tAc "select 1 from pg_database where datname='obraplan'" | grep -q 1 \
-  || createdb obraplan
+# A conexão é por TCP, que exige senha mesmo sendo local. A senha é
+# gerada aqui e fica só no .env, que não vai para o git.
+SENHA="$(openssl rand -hex 16)"
+if como_postgres "psql -tAc \"select 1 from pg_roles where rolname='$USUARIO'\"" | grep -q 1; then
+  como_postgres "psql -qc \"ALTER ROLE $USUARIO LOGIN SUPERUSER PASSWORD '$SENHA'\""
+else
+  como_postgres "psql -qc \"CREATE ROLE $USUARIO LOGIN SUPERUSER PASSWORD '$SENHA'\""
+fi
+como_postgres "psql -tAc \"select 1 from pg_database where datname='obraplan'\"" | grep -q 1 \
+  || como_postgres "createdb -O $USUARIO obraplan"
 
 echo "== Ambiente"
-[ -f .env ] || printf 'DATABASE_URL="postgresql://%s@localhost:5432/obraplan"\n' "$USUARIO" > .env
+printf 'DATABASE_URL="postgresql://%s:%s@localhost:5432/obraplan"\n' "$USUARIO" "$SENHA" > .env
+chmod 600 .env
 
 echo "== Dependências e schema"
 npm install --silent
