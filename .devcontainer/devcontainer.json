@@ -6,7 +6,7 @@
       "version": "latest"
     }
   },
-  "postCreateCommand": "cp -n .env.exemplo .env && npm install && npx prisma generate",
+  "postCreateCommand": "bash implantacao/codespace.sh",
   "forwardPorts": [3001],
   "portsAttributes": {
     "3001": {
